@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Product;
+use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -15,24 +18,32 @@ class PriceController extends AbstractController
 {
     public function __construct(
         protected PriceCalculator $priceCalculator,
-        protected ValidatorInterface $validator
+        protected ValidatorInterface $validator,
+        protected EntityManagerInterface $entityManager
     )
     {
     }
+
     /**
-     * @Route("/calculate-price", methods={"POST"})
+     * @Route("/calculate-price/{product}", methods={"POST"})
+     * @throws Exception
      */
-    #[Route('/calculate-price', methods: ['POST'])]
-    public function calculatePrice(Request $request): JsonResponse
+    #[Route('/calculate-price/{product}', methods: ['POST'])]
+    public function calculatePrice(Product $product,Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $errors = $this->validator->validate($data['taxNumber'], new TaxNumber());
         if (count($errors) > 0) {
             return new JsonResponse(['errors' => (string) $errors], 400);
         }
 
-        $price = $this->priceCalculator->calculate($data['product'], $data['taxNumber'], $data['couponCode']);
+
+        try {
+            $price = $this->priceCalculator->calculate($product, $data['taxNumber'], $data['couponCode']);
+        } catch (Exception $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 400);
+        }
 
         return new JsonResponse(['price' => $price], 200);
     }

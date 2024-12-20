@@ -1,5 +1,5 @@
 ### Calculate Price
-POST http://127.0.0.1:8337/calculate-price
+POST http://127.0.0.1:8337/calculate-price/1
 Accept: application/json
 Content-Type: application/json
 
@@ -10,7 +10,7 @@ Content-Type: application/json
 }
 
 ### Execute Purchase
-POST http://127.0.0.1:8337/purchase
+POST http://127.0.0.1:8337/1/purchase
 Accept: application/json
 Content-Type: application/json
 
@@ -20,3 +20,47 @@ Content-Type: application/json
   "couponCode": "D15",
   "paymentProcessor": "paypal"
 }
+
+
+### Create Product
+POST http://127.0.0.1:8337/product/create
+Accept: application/json
+Content-Type: application/json
+
+{
+    "name": "Iphone",
+    "price": 100
+}
+
+
+
+### Create Product
+POST http://127.0.0.1:8337/product/create
+Accept: application/json
+Content-Type: application/json
+
+{
+    "name": "Наушники",
+    "price": 20
+}
+
+
+
+### Create Product
+POST http://127.0.0.1:8337/product/create
+Accept: application/json
+Content-Type: application/json
+
+{
+    "name": "Чехол",
+    "price": 10
+}
+
+### Show Products
+GET http://127.0.0.1:8337/product
+Accept: application/json
+
+
+### Show Products
+GET http://127.0.0.1:8337/order
+Accept: application/json

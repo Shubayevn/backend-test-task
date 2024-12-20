@@ -2,16 +2,18 @@
 
 namespace App\Service;
 
+use App\Entity\Product;
+use Exception;
+
 class PriceCalculator
 {
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    public function calculate(int $productId, string $taxNumber, ?string $couponCode): float
+    public function calculate(Product $product, string $taxNumber, ?string $couponCode): float
     {
         // Логика расчета цены с учетом налога и купона
-        // Пример:
-        $productPrice = $this->getProductPrice($productId);
+        $productPrice = $this->getProductPrice($product);
         $taxRate = $this->getTaxRate($taxNumber);
         $discount = $this->getDiscount($couponCode);
 
@@ -19,20 +21,17 @@ class PriceCalculator
         return $priceWithTax - ($priceWithTax * $discount / 100);
     }
 
-    private function getProductPrice(int $productId): float
+    /**
+     * @throws Exception
+     */
+    private function getProductPrice(Product $product): float
     {
         // Получение цены продукта из базы данных
-        // Пример:
-        switch ($productId) {
-            case 1:
-                return 100.0;
-            case 2:
-                return 20.0;
-            case 3:
-                return 10.0;
-            default:
-                throw new \Exception('Invalid product ID');
+        $price = $product->getPrice();
+        if ($price === 0.0 || $price === null) {
+            throw new Exception('Price is not set');
         }
+        return $price;
     }
 
     private function getTaxRate(string $taxNumber): float
@@ -54,17 +53,17 @@ class PriceCalculator
             return 20.0;
         }
 
-        throw new \Exception('Invalid tax number');
+        throw new Exception('Invalid tax number');
     }
 
     private function getDiscount(?string $couponCode): float
     {
         // Получение скидки по купону
         switch ($couponCode) {
-            case 'D15':
-                return 15.0;
             case 'P10':
                 return 10.0;
+            case 'D15':
+                return 15.0;
             case 'P100':
                 return 100.0;
             default:
